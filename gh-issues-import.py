@@ -63,7 +63,7 @@ def init_config():
 	include_group.add_argument("--all", dest='import_all', action='store_true', help="Import all issues, regardless of state.")
 	include_group.add_argument("--open", dest='import_open', action='store_true', help="Import only open issues.")
 	include_group.add_argument("--closed", dest='import_closed', action='store_true', help="Import only closed issues.")
-	include_group.add_argument("-i", "--issues", type=int, nargs='+', help="The list of issues to import.");
+	include_group.add_argument("-i", "--issues", type=str, nargs='+', help="The list of issues to import.");
 
 	args = arg_parser.parse_args()
 
@@ -233,9 +233,10 @@ def get_issue_by_id(which, issue_id):
 def get_issues_by_id(which, issue_ids):
 	# Populate issues based on issue IDs
 	issues = []
+	issue_ids = issue_ids[0].split(" ")
 	for issue_id in issue_ids:
 		issues.append(get_issue_by_id(which, int(issue_id)))
-
+	
 	return issues
 
 # Allowed values for state are 'open' and 'closed'
@@ -373,8 +374,8 @@ def import_issues(issues):
 
 	print("You are about to add to '" + config.get('target', 'repository') + "':")
 	print(" *", len(new_issues), "new issues")
-	if not query.yes_no("Are you sure you wish to continue?"):
-		sys.exit()
+	# if not query.yes_no("Are you sure you wish to continue?"):
+	# 	sys.exit()
 
 	state.current = state.IMPORTING
 
