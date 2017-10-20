@@ -14,20 +14,20 @@ python gh-issues-import.py --source nashville-software-school/repo --target stud
 
 ### Importing Blocks of Issues
 
-I created a bash script to help with the automation of importing blocks of tickets to student personal websites. Since we aren't going to give them all of the tickets at once, but rather in blocks when we cover a specific technology, it would require too man copy pastas.
+I created a bash script to help with the automation of importing blocks of tickets to student personal websites. Since we aren't going to give them all of the tickets at once, but rather in blocks when we cover a specific technology, it would require too many copy pastas.
 
 1. Have students send you their Github handles.
 1. Copy them all into a file (e.g. `cohort22`) and delimit them with semi-colons. [Example](./cohort22)
-1. Run the `backlog.sh` script and the filename holding the handles as the single argument.
+1. Run the `backlog.sh` script. The source repo is just the `org/repo`, not the full URL. (e.g. `nashville-software-school/chatty`)
     ```sh
-    ./backlog cohort22
+    ./backlog.sh [file] [source repo]
     ```
 1. It will prompt you for the block of tickets you want to import. Enter them in delimited by a space (e.g. `14 15 16 17`)
 1. The importing process will start.
 
 ```sh
-╭─ ~/dev/github/stevebrownlee/github-backlog-creator  ‹master*› 
-╰─$ ./backlog.sh cohort22
+╭─ ~/dev/github/stevebrownlee/github-backlog-creator  ‹master*›
+╰─$ ./backlog.sh cohort22 nashville-software-school/personal-site
 Issues > 12 13 14
 
 python gh-issues-import.py --source stevebrownlee/personal-site --target tgbowman/tgbowman.github.io --issues 12 13 14
