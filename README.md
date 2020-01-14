@@ -2,75 +2,54 @@
 
 This Python script allows you to import issues and pull requests from one repository to another; works even for private repositories, and if the two repositories are not related to each other in any way.
 
+## Setup
+
+### 2FA Setup
+
+> Note: You should have 2FA on your account
+
+If you have 2FA enabled on your Github account, you will need to create a personal access token and put that in place of your account password.
+
+1. Copy `config.ini.sample` to `config.ini`.
+1. Open the new file
+1. Go to your Github account
+1. Open settings
+1. Click on Developer Settings
+1. Click on Personal Access Tokens
+1. Click on Generate New Token
+1. Call the new token _Backlog generator_
+1. Scroll down and click the Generate Token button
+1. Copy the token that gets created
+1. Paste it into the `password` key in the `config.ini` file.
+
+```html
+[login]
+username = you
+password = xxxxxxxxxxx your token here xxxxxxxxx
+```
+
+### Non 2FA Accounts
+
+Just type in your account password in the `ini` file.
+
 ## Usage
 
 ### Importing Open Issues to Student Repo
 
-Whether you are importing all open issues into a individual student repository, or to a team's organization repo, use the following command. This is most useful
+Whether you are importing all open issues into a individual student repository, or to a team's organization repo, use the following command.
 
-```sh
-python gh-issues-import.py --source nashville-software-school/repo --target student-account/repo --open
-```
-
-### Importing Blocks of Issues
-
-I created a bash script to help with the automation of importing blocks of tickets to student personal websites. Since we aren't going to give them all of the tickets at once, but rather in blocks when we cover a specific technology, it would require too many copy pastas.
-
-1. Have students send you their Github handles.
-1. Copy them all into a file (e.g. `cohort22`) and delimit them with semi-colons. [Example](./cohort22)
-1. Run the `backlog.sh` script. The source repo is just the `org/repo`, not the full URL. (e.g. `nashville-software-school/chatty`)
-    ```sh
-    ./backlog.sh [file] [source repo]
-    ```
-1. It will prompt you for the block of tickets you want to import. Enter them in delimited by a space (e.g. `14 15 16 17`)
-1. The importing process will start.
-
-```sh
-╭─ ~/dev/github/stevebrownlee/github-backlog-creator  ‹master*›
-╰─$ ./backlog.sh cohort22 nashville-software-school/personal-site
-Issues > 12 13 14
-
-python gh-issues-import.py --source stevebrownlee/personal-site --target tgbowman/tgbowman.github.io --issues 12 13 14
-Loaded options from default config file in '/Users/stevebrownlee/dev/github/stevebrownlee/github-backlog-creator/config.ini'
-
-You are about to add to 'tgbowman/tgbowman.github.io':
- * 3 new issues
-Successfully created issue 'Populate your resume page with data in the database'
-Successfully created issue 'Populate your projects page from data in the database'
-Successfully created issue 'Populate your contact page from data in the database'
-python gh-issues-import.py --source stevebrownlee/personal-site --target rmbw74/rmbw74.github.io --issues 12 13 14
-Loaded options from default config file in '/Users/stevebrownlee/dev/github/stevebrownlee/github-backlog-creator/config.ini'
-
-You are about to add to 'rmbw74/rmbw74.github.io':
- * 3 new issues
-Successfully created issue 'Populate your resume page with data in the database'
-Successfully created issue 'Populate your projects page from data in the database'
-Successfully created issue 'Populate your contact page from data in the database'
-python gh-issues-import.py --source stevebrownlee/personal-site --target kghaggerty/kghaggerty.github.io --issues 12 13 14
-Loaded options from default config file in '/Users/stevebrownlee/dev/github/stevebrownlee/github-backlog-creator/config.ini'
-
-etc...
+```html
+python gh-issues-import.py \
+    --source nashville-software-school/repo \
+    --target target-organization/repo \
+    --open
 ```
 
 ### More Details
 
-The script will by default look for a file named `config.ini` located in the same folder as the Python script. For a list of all possible configuration options, see [_Configuration_](http://www.iqandreas.com/github-issues-import/configuration/).
+For a list of all possible configuration options in `config.ini`, see [_Configuration_](http://www.iqandreas.com/github-issues-import/configuration/).
 
 To quickly get started, rename `config.ini.sample` to `config.ini`, and edit the fields to match your login info and repository info. If you have 2FA enabled on your Github account, you will need to create a personal access token and put that in place of your account password.
-
-Run the script with the following command to import all open issues into the repository defined in the config:
-
-```
- $ python3 gh-issues-import.py --open
-```
-
-If you want to import all issues (including the closed ones), use `--all` instead of `--open`. Closed issues will still be open in the target repository, but titles will begin with `[CLOSED]`.
-
-Or to only import specific issues, run the script and include the issue numbers of all issues you wish to import (can be done for one or several issues, and will even include closed issues):
-
-```
- $ python3 gh-issues-import.py --issues 25 26 29
-```
 
 Some config options can be passed as arguments. For a full list, see [the the _Arguments_ page](http://www.iqandreas.com/github-issues-import/arguments/), or run the script using the `--help` flag.
 

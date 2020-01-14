@@ -6,10 +6,10 @@ username = OctoDog
 password = plaintext_pa$$w0rd
 
 [source]
-repository = OctoCat/Hello-World
+;repository = OctoCat/Hello-World
 
 [target]
-repository = OctoDog/Hello-World
+;repository = OctoDog/Hello-World
 
 [format] # These can be adjusted based on your group's region and language.
 
