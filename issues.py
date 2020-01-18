@@ -1,22 +1,10 @@
-#!/usr/bin/env python3
-
+import os
 import urllib.request
 import urllib.error
 import urllib.parse
 import json
 import base64
-import sys
-import os
 import datetime
-import argparse
-import configparser
-
-import query
-
-__location__ = os.path.realpath(os.path.join(
-    os.getcwd(), os.path.dirname(__file__)))
-default_config_file = os.path.join(__location__, 'config.ini')
-config = configparser.RawConfigParser()
 
 
 class state:
@@ -37,9 +25,6 @@ def import_issues(config, issues):
     state.current = state.GENERATING
 
     new_issues = []
-    num_new_comments = 0
-    new_milestones = []
-    new_labels = []
 
     for issue in issues:
 
@@ -54,11 +39,11 @@ def import_issues(config, issues):
         template_data['user_name'] = issue['user']['login']
         template_data['user_url'] = issue['user']['html_url']
         template_data['user_avatar'] = issue['user']['avatar_url']
-        template_data['date'] = format_date(issue['created_at'])
+        template_data['date'] = format_date(config, issue['created_at'])
         template_data['url'] = issue['html_url']
         template_data['body'] = issue['body']
 
-        new_issue['body'] = format_issue(template_data)
+        new_issue['body'] = format_issue(config, template_data)
         new_issues.append(new_issue)
 
     state.current = state.IMPORT_CONFIRMATION
@@ -80,20 +65,24 @@ def import_issues(config, issues):
 
     return result_issues
 
-def format_from_template(template_filename, template_data):
-	from string import Template
-	template_file = open(template_filename, 'r')
-	template = Template(template_file.read())
-	return template.substitute(template_data)
 
-def format_issue(template_data):
+def format_from_template(template_filename, template_data):
+    from string import Template
+    template_file = open(template_filename, 'r')
+    template = Template(template_file.read())
+    return template.substitute(template_data)
+
+
+def format_issue(config, template_data):
+    __location__ = os.path.realpath(os.path.join(
+        os.getcwd(), os.path.dirname(__file__)))
     default_template = os.path.join(__location__, 'templates', 'issue.md')
     template = config.get('format', 'issue_template',
                           fallback=default_template)
     return format_from_template(template, template_data)
 
 
-def format_date(datestring):
+def format_date(config, datestring):
     # The date comes from the API in ISO-8601 format
     date = datetime.datetime.strptime(datestring, "%Y-%m-%dT%H:%M:%SZ")
     date_format = config.get(
@@ -127,6 +116,7 @@ def get_issues_by_id(config, which, issue_ids):
         issues.append(get_issue_by_id(which, int(issue_id)))
 
     return issues
+
 
 def send_import_request(config, which, url, post_data=None):
 

@@ -1,13 +1,5 @@
-#!/usr/bin/env python3
-
-import urllib.request
-import urllib.error
-import urllib.parse
-import json
-import base64
 import sys
 import os
-import datetime
 import query
 import argparse
 import configparser
@@ -108,11 +100,13 @@ def init_config():
 
     if args.username:
         config.set('login', 'username', args.username)
+
     if args.password:
         config.set('login', 'password', args.password)
 
     if args.source:
         config.set('source', 'repository', args.source)
+
     if args.target:
         config.set('target', 'repository', args.target)
 
@@ -176,8 +170,6 @@ def init_config():
 
     # Everything is here! Continue on our merry way...
     return args.issues or []
-
-
 
 
 if __name__ == '__main__':
