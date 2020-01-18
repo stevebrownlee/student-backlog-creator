@@ -172,17 +172,10 @@ def init_config():
     # Everything is here! Continue on our merry way...
     return args.issues or []
 
-
-if __name__ == '__main__':
-
-    state.current = state.LOADING_CONFIG
-
-    issue_ids = init_config()
+def get_issues(issue_ids):
+    # Argparser will prevent us from getting both issue ids and specifying issue state, so no duplicates will be added
     issues = []
 
-    state.current = state.FETCHING_ISSUES
-
-    # Argparser will prevent us from getting both issue ids and specifying issue state, so no duplicates will be added
     if (len(issue_ids) > 0):
         issues += get_issues_by_id(config, 'source', issue_ids)
 
@@ -196,10 +189,23 @@ if __name__ == '__main__':
     # Confusing, but taken from http://stackoverflow.com/a/2878123/617937
     issues.sort(key=lambda x: x['number'])
 
-    # Further states defined within the function
-    # Finally, add these issues to the target repository
-    # import_issues(config, issues)
+    return issues
+
+
+if __name__ == '__main__':
+
+    state.current = state.LOADING_CONFIG
+
+    issue_ids = init_config()
+    issues = get_issues(issue_ids)
+    state.current = state.FETCHING_ISSUES
+
+    import_issues(config, issues)
+    state.current = state.IMPORTING
+
     project = ProjectBoard(config)
     project.create()
+    project.create_columns()
+    project.add_target_issues_to_backlog()
 
     state.current = state.COMPLETE
