@@ -100,5 +100,5 @@ class ProjectBoard(object):
             }
             res = requests.post(url=url, data=json.dumps(data), headers=self.headers)
             card = res.json()
-            print(f'Issue "{card["note"]}" added to backlog')
+            print(f'Issue "{card["id"]}" added to Backlog column')
 
