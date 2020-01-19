@@ -1,7 +1,9 @@
+import os
 import base64
 import requests
 import json
-
+import sys
+import tty
 
 class ProjectBoard(object):
     def __init__(self, config):
@@ -70,10 +72,64 @@ class ProjectBoard(object):
         # https://developer.github.com/v3/issues/#list-issues-for-a-repository
         # GET /repos/:owner/:repo/issues
 
-        url = f'{self.config.get("target", "url")}/issues?state=open'
-        res = requests.get(url=url, headers=self.headers)
-        target_issues = res.json()
-        return target_issues
+        page = 1
+        issues = []
+
+        while True:
+            url = f'{self.config.get("target", "url")}/issues?state=open&page={page}&direction=asc'
+            res = requests.get(url=url, headers=self.headers)
+            new_issues = res.json()
+            if not new_issues:
+                break
+            issues.extend(new_issues)
+            page += 1
+
+        if self.display_issues(issues):
+            return issues
+
+        return []
+
+    def display_issues(self, issues):
+        tty.setcbreak(sys.stdin)
+
+        active_issue = 0
+        issue_count = len(issues) - 1
+        choice = None
+
+        while choice != 10:
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print(choice)
+            if choice == 106:
+                active_issue -= 1
+                if active_issue < 0:
+                    active_issue = 0
+
+            if choice == 107:
+                active_issue += 1
+                if active_issue > issue_count:
+                    active_issue = issue_count
+
+            if choice == 117:
+                a, b = active_issue, active_issue + 1
+                issues[b], issues[a] = issues[a], issues[b]
+                active_issue += 1
+
+            if choice == 100:
+                a, b = active_issue - 1, active_issue
+                issues[b], issues[a] = issues[a], issues[b]
+                active_issue -= 1
+
+
+            for idx, issue in enumerate(issues):
+                if idx == active_issue:
+                    print(f'(*) {issue["title"]}')
+                else:
+                    print(f'( ) {issue["title"]}')
+
+            choice = ord(sys.stdin.read(1))
+
+
+        return False
 
     def add_target_issues_to_backlog(self):
         # https://developer.github.com/v3/projects/cards/#create-a-project-card
@@ -96,4 +152,5 @@ class ProjectBoard(object):
             res = requests.post(url=url, data=json.dumps(
                 data), headers=self.headers)
             card = res.json()
-            print(f'Issue "{card["id"]}" added to Backlog column')
+            print(
+                f'Card {card["id"]} added to backlog from issue ticket {issue["number"]}')

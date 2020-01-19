@@ -164,11 +164,10 @@ def get_issues(issue_ids):
 if __name__ == '__main__':
 
     issue_ids = init_config()
-    issues = get_issues(issue_ids)
-
-    import_issues(config, issues)
+    # issues = get_issues(issue_ids)
+    # import_issues(config, issues)
 
     project = ProjectBoard(config)
-    project.create()
-    project.create_columns()
+    # project.create()
+    # project.create_columns()
     project.add_target_issues_to_backlog()

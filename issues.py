@@ -14,6 +14,7 @@ http_error_messages[401] = "ERROR: There was a problem during authentication.\nD
 http_error_messages[403] = http_error_messages[401]
 http_error_messages[404] = "ERROR: Unable to find the specified repository.\nDouble check the spelling for the source and target repositories. If either repository is private, make sure the specified user is allowed access to it."
 
+
 def import_issues(config, issues):
 
     new_issues = []
@@ -81,8 +82,7 @@ def get_issues_by_state(config, which, state):
     page = 1
     while True:
         new_issues = send_import_request(
-            config,
-            which, "issues?state=%s&direction=asc&page=%d" % (state, page))
+            config, which, f'issues?state={state}&direction=asc&page={page}')
         if not new_issues:
             break
         issues.extend(new_issues)
