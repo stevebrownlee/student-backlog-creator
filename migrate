@@ -168,6 +168,6 @@ if __name__ == '__main__':
     # import_issues(config, issues)
 
     project = ProjectBoard(config)
-    # project.create()
-    # project.create_columns()
+    project.create()
+    project.create_columns()
     project.add_target_issues_to_backlog()

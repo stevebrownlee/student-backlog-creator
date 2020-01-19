@@ -84,10 +84,8 @@ class ProjectBoard(object):
             issues.extend(new_issues)
             page += 1
 
-        if self.display_issues(issues):
-            return issues
-
-        return []
+        ordered_issues = self.display_issues(issues)
+        return ordered_issues
 
     def display_issues(self, issues):
         tty.setcbreak(sys.stdin)
@@ -98,26 +96,30 @@ class ProjectBoard(object):
 
         while choice != 10:
             os.system('cls' if os.name == 'nt' else 'clear')
-            print(choice)
-            if choice == 106:
-                active_issue -= 1
-                if active_issue < 0:
-                    active_issue = 0
 
+            # k
             if choice == 107:
-                active_issue += 1
-                if active_issue > issue_count:
-                    active_issue = issue_count
+                if active_issue > 0:
+                    active_issue -= 1
 
-            if choice == 117:
-                a, b = active_issue, active_issue + 1
-                issues[b], issues[a] = issues[a], issues[b]
-                active_issue += 1
+            # j
+            if choice == 106:
+                if active_issue < issue_count:
+                    active_issue += 1
 
+            # d
             if choice == 100:
-                a, b = active_issue - 1, active_issue
-                issues[b], issues[a] = issues[a], issues[b]
-                active_issue -= 1
+                if active_issue < issue_count:
+                    a, b = active_issue, active_issue + 1
+                    issues[b], issues[a] = issues[a], issues[b]
+                    active_issue += 1
+
+            # u
+            if choice == 117:
+                if active_issue > 0:
+                    a, b = active_issue - 1, active_issue
+                    issues[b], issues[a] = issues[a], issues[b]
+                    active_issue -= 1
 
 
             for idx, issue in enumerate(issues):
@@ -126,10 +128,11 @@ class ProjectBoard(object):
                 else:
                     print(f'( ) {issue["title"]}')
 
+            print('\n\nj=cursor up   k=cursor down   u=move up   d=move down')
             choice = ord(sys.stdin.read(1))
 
-
-        return False
+        issues.reverse()
+        return issues
 
     def add_target_issues_to_backlog(self):
         # https://developer.github.com/v3/projects/cards/#create-a-project-card
