@@ -84,10 +84,10 @@ class ProjectBoard(object):
             issues.extend(new_issues)
             page += 1
 
-        ordered_issues = self.display_issues(issues)
+        ordered_issues = self.organize_issues(issues)
         return ordered_issues
 
-    def display_issues(self, issues):
+    def organize_issues(self, issues):
         tty.setcbreak(sys.stdin)
 
         active_issue = 0
@@ -124,9 +124,9 @@ class ProjectBoard(object):
 
             for idx, issue in enumerate(issues):
                 if idx == active_issue:
-                    print(f'(*) {issue["title"]}')
+                    print(f'(⭐️) {issue["title"]}')
                 else:
-                    print(f'( ) {issue["title"]}')
+                    print(f'(  ) {issue["title"]}')
 
             print('\n\nj=cursor up   k=cursor down   u=move up   d=move down')
             choice = ord(sys.stdin.read(1))
