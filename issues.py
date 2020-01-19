@@ -1,3 +1,4 @@
+import sys
 import os
 import urllib.request
 import urllib.error
@@ -7,22 +8,13 @@ import base64
 import datetime
 
 
-class state:
-    current = ""
-    INITIALIZING = "script-initializing"
-    LOADING_CONFIG = "loading-config"
-    FETCHING_ISSUES = "fetching-issues"
-    GENERATING = "generating"
-    IMPORT_CONFIRMATION = "import-confirmation"
-    IMPORTING = "importing"
-    IMPORT_COMPLETE = "import-complete"
-    COMPLETE = "script-complete"
+http_error_messages = {}
+http_error_messages[401] = "ERROR: There was a problem during authentication.\nDouble check that your username and password are correct, and that you have permission to read from or write to the specified repositories."
+# Basically the same problem. GitHub returns 403 instead to prevent abuse.
+http_error_messages[403] = http_error_messages[401]
+http_error_messages[404] = "ERROR: Unable to find the specified repository.\nDouble check the spelling for the source and target repositories. If either repository is private, make sure the specified user is allowed access to it."
 
-
-# Will only import milestones and issues that are in use by the imported issues, and do not exist in the target repository
 def import_issues(config, issues):
-
-    state.current = state.GENERATING
 
     new_issues = []
 
@@ -46,13 +38,9 @@ def import_issues(config, issues):
         new_issue['body'] = format_issue(config, template_data)
         new_issues.append(new_issue)
 
-    state.current = state.IMPORT_CONFIRMATION
-
     print("You are about to add to '" +
           config.get('target', 'repository') + "':")
     print(" *", len(new_issues), "new issues")
-
-    state.current = state.IMPORTING
 
     result_issues = []
     for issue in new_issues:
@@ -60,8 +48,6 @@ def import_issues(config, issues):
         result_issue = send_import_request(config, 'target', "issues", issue)
         print("Successfully created issue '%s'" % result_issue['title'])
         result_issues.append(result_issue)
-
-    state.current = state.IMPORT_COMPLETE
 
     return result_issues
 
@@ -109,11 +95,9 @@ def get_issue_by_id(config, which, issue_id):
 
 
 def get_issues_by_id(config, which, issue_ids):
-    # Populate issues based on issue IDs
     issues = []
-    issue_ids = issue_ids[0].split(" ")
     for issue_id in issue_ids:
-        issues.append(get_issue_by_id(which, int(issue_id)))
+        issues.append(get_issue_by_id(config, which, int(issue_id)))
 
     return issues
 

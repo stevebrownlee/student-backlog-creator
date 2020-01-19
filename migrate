@@ -1,3 +1,5 @@
+#!/Users/chortlehoort/.pyenv/shims/python
+
 import sys
 import os
 import query
@@ -11,28 +13,6 @@ __location__ = os.path.realpath(os.path.join(
     os.getcwd(), os.path.dirname(__file__)))
 default_config_file = os.path.join(__location__, 'config.ini')
 config = configparser.RawConfigParser()
-
-
-class state:
-    current = ""
-    INITIALIZING = "script-initializing"
-    LOADING_CONFIG = "loading-config"
-    FETCHING_ISSUES = "fetching-issues"
-    GENERATING = "generating"
-    IMPORT_CONFIRMATION = "import-confirmation"
-    IMPORTING = "importing"
-    IMPORT_COMPLETE = "import-complete"
-    COMPLETE = "script-complete"
-
-
-state.current = state.INITIALIZING
-
-http_error_messages = {}
-http_error_messages[401] = "ERROR: There was a problem during authentication.\nDouble check that your username and password are correct, and that you have permission to read from or write to the specified repositories."
-# Basically the same problem. GitHub returns 403 instead to prevent abuse.
-http_error_messages[403] = http_error_messages[401]
-http_error_messages[404] = "ERROR: Unable to find the specified repository.\nDouble check the spelling for the source and target repositories. If either repository is private, make sure the specified user is allowed access to it."
-
 
 def init_config():
 
@@ -61,14 +41,11 @@ def init_config():
         '-t', '--target', help="The destination repository which the issues should be copied to. Should be in the format `user/repository`.")
 
     include_group = arg_parser.add_mutually_exclusive_group(required=True)
-    include_group.add_argument("--all", dest='import_all', action='store_true',
-                               help="Import all issues, regardless of state.")
-    include_group.add_argument(
-        "--open", dest='import_open', action='store_true', help="Import only open issues.")
-    include_group.add_argument("--closed", dest='import_closed',
-                               action='store_true', help="Import only closed issues.")
-    include_group.add_argument(
-        "-i", "--issues", type=str, nargs='+', help="The list of issues to import.")
+    include_group.add_argument("-a", "--all", dest='import_all', action='store_true',
+                               help="Import all open issues.")
+    include_group.add_argument('-i', '--issues', nargs='+', type=int, help="The list of issues to import. (e.g. -i 1 5 6 10 15)")
+    # include_group.add_argument(
+    #     "-i", "--issues", type=str, nargs='+', help="The list of issues to import.")
 
     args = arg_parser.parse_args()
 
@@ -110,11 +87,6 @@ def init_config():
 
     if args.target:
         config.set('target', 'repository', args.target)
-
-    config.set('settings', 'import-open-issues',
-               str(args.import_all or args.import_open))
-    config.set('settings', 'import-closed-issues',
-               str(args.import_all or args.import_closed))
 
     # Make sure no required config values are missing
     if not config.has_option('source', 'repository'):
@@ -172,34 +144,31 @@ def init_config():
     # Everything is here! Continue on our merry way...
     return args.issues or []
 
-
-if __name__ == '__main__':
-
-    state.current = state.LOADING_CONFIG
-
-    issue_ids = init_config()
+def get_issues(issue_ids):
+    # Argparser will prevent us from getting both issue ids and specifying issue state, so no duplicates will be added
     issues = []
 
-    state.current = state.FETCHING_ISSUES
-
-    # Argparser will prevent us from getting both issue ids and specifying issue state, so no duplicates will be added
     if (len(issue_ids) > 0):
-        issues += get_issues_by_id(config, 'source', issue_ids)
+        issues.extend(get_issues_by_id(config, 'source', issue_ids))
+    else:
+        issues.extend(get_issues_by_state(config, 'source', 'open'))
 
-    if config.getboolean('settings', 'import-open-issues'):
-        issues += get_issues_by_state(config, 'source', 'open')
-
-    if config.getboolean('settings', 'import-closed-issues'):
-        issues += get_issues_by_state(config, 'source', 'closed')
 
     # Sort issues based on their original `id` field
     # Confusing, but taken from http://stackoverflow.com/a/2878123/617937
     issues.sort(key=lambda x: x['number'])
 
-    # Further states defined within the function
-    # Finally, add these issues to the target repository
-    # import_issues(config, issues)
+    return issues
+
+
+if __name__ == '__main__':
+
+    issue_ids = init_config()
+    issues = get_issues(issue_ids)
+
+    import_issues(config, issues)
+
     project = ProjectBoard(config)
     project.create()
-
-    state.current = state.COMPLETE
+    project.create_columns()
+    project.add_target_issues_to_backlog()

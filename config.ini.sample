@@ -2,14 +2,21 @@
 # For a full list of options, see <http://www.iqandreas.com/github-issues-import/configuration/>
 
 [login]
-username = OctoDog
-password = plaintext_pa$$w0rd
+username = stevebrownlee
+password = xxxxx.xxxx.x.x.x.xxxx.x.xx.xxxx.xxx.xxxx
 
 [source]
-;repository = OctoCat/Hello-World
+repository = nashville-software-school/nutshell
 
 [target]
-;repository = OctoDog/Hello-World
+repository = nss-cohort-37/callous-capybaras-nutshell
+
+[project]
+name = Nutshell
+columns = ["Backlog", "In Progress", "Ready to Test", "Complete"]
+
+[github]
+media_type = application/vnd.github.inertia-preview+json
 
 [format] # These can be adjusted based on your group's region and language.
 

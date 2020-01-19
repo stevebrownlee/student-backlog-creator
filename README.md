@@ -51,10 +51,18 @@ That's all you will need to change each time you run this tool.
 > media_type = application/vnd.github.inertia-preview+json
 > ```
 
-### Migration
+### Running the Migration
 
-```html
-python migrate.py --open
+To migrate all open ticket from source to target, use the `-a` flag.
+
+```sh
+./migrate -a
+```
+
+To migrate some of the open tickets from source to target, use the `-i` flag and then the numbers of the tickets. The following command would only migrate 6 specific tickets.
+
+```sh
+./migrate -i 2 5 6 9 13 20
 ```
 
 ## Deactivating Virtual Environment
