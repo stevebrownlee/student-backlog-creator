@@ -9,6 +9,7 @@ import json
 import base64
 import datetime
 from githubrequest import GithubRequest
+from project import ProjectBoard
 
 
 http_error_messages = {}
@@ -53,12 +54,16 @@ class Issues(object):
         else:
             target = None
 
-            while target != "x":
-                print("Target (e.g. nss-cohort-30/nutshell-tiny-toads). Enter x when done.")
+            while True:
+                os.system('cls' if os.name == 'nt' else 'clear')
+                print("Target (i.e. account/repo). Enter x when done.")
                 target = input("> ")
+                if target == "x":
+                    break
                 self.send_to_target(target, organized_issues)
 
     def send_to_target(self, target, issues):
+        target_issues = []
         github = self.config.get('server', 'base_url')
         url = f'{github}/repos/{target}/issues'
 
@@ -67,9 +72,19 @@ class Issues(object):
 
         for issue in issues:
             issue['labels'] = ['enhancement']
-            res = self.grequest.post(url, issue)
-            result_issue = res.json()
-            print(f'Successfully created issue \"{result_issue["title"]}\"')
+            try:
+                res = self.grequest.post(url, issue)
+                result_issue = res.json()
+                print(f'Successfully created issue \"{result_issue["title"]}\"')
+                target_issues.append(result_issue)
+            except KeyError as err:
+                print(f'Error creating issue. {err}.')
+                print(result_issue)
+
+        project_manager = ProjectBoard(self.config)
+        project_manager.create(target)
+        project_manager.create_columns()
+        project_manager.add_target_issues_to_backlog(target_issues)
 
     def get_from_source(self):
         issues = []
@@ -88,7 +103,6 @@ class Issues(object):
         fd = sys.stdin.fileno()
         old = termios.tcgetattr(fd)
         old[3] = old[3] | termios.ECHO
-
 
         tty.setcbreak(sys.stdin)
 

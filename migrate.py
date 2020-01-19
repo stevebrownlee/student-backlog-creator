@@ -3,7 +3,6 @@ import os
 import query
 import argparse
 import configparser
-from project import ProjectBoard
 from issues import Issues
 
 
@@ -103,7 +102,3 @@ if __name__ == '__main__':
     issue_manager = Issues(config, issue_ids)
     issue_manager.migrate_issues()
 
-    # project = ProjectBoard(config)
-    # project.create()
-    # project.create_columns()
-    # project.add_target_issues_to_backlog()

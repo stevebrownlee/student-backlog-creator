@@ -13,7 +13,7 @@ class ProjectBoard(object):
         self.project_columns = []
         self.grequest = GithubRequest(config)
 
-    def create(self):
+    def create(self, target):
         # https://developer.github.com/v3/projects/#create-a-repository-project
         # POST /repos/:owner/:repo/projects
 
@@ -22,7 +22,8 @@ class ProjectBoard(object):
             "body": "NSS Student Project"
         }
 
-        url = f'{self.config.get("target", "url")}/projects'
+        github = self.config.get('server', 'base_url')
+        url = f'{github}/repos/{target}/projects'
         res = self.grequest.post(url, project)
 
         if (res.status_code == requests.codes.created):
@@ -47,7 +48,7 @@ class ProjectBoard(object):
         url = f'https://api.github.com/projects/{self.project_id}/columns'
 
         for col in self.columns:
-            data = json.dumps({"name": col})
+            data = {"name": col}
             url = url
             res = self.grequest.post(url, data)
 
@@ -73,8 +74,8 @@ class ProjectBoard(object):
             issues.extend(new_issues)
             page += 1
 
-        ordered_issues = self.organize_issues(issues)
-        return ordered_issues
+        # ordered_issues = self.organize_issues(issues)
+        return issues
 
     def organize_issues(self, issues):
         tty.setcbreak(sys.stdin)
@@ -123,7 +124,7 @@ class ProjectBoard(object):
         issues.reverse()
         return issues
 
-    def add_target_issues_to_backlog(self):
+    def add_target_issues_to_backlog(self, issues):
         # https://developer.github.com/v3/projects/cards/#create-a-project-card
         # POST /projects/columns/:column_id/cards
         # {
@@ -131,7 +132,7 @@ class ProjectBoard(object):
         #     "content_type": "Issue"
         # }
 
-        issues = self.get_target_issues()
+        # issues = self.get_target_issues()
         backlog = self.project_columns[0]["id"]
         url = f'https://api.github.com/projects/columns/{backlog}/cards'
         print(f'Adding open issues to {url}')
@@ -141,7 +142,6 @@ class ProjectBoard(object):
                 "content_id": issue["id"],
                 "content_type": "Issue"
             }
-            res = self.grequests.post(url, data)
+            res = self.grequest.post(url, data)
             card = res.json()
-            print(
-                f'Card {card["id"]} added to backlog from issue ticket {issue["number"]}')
+            print(f'Card {card["id"]} added to backlog from issue ticket {issue["number"]}')
