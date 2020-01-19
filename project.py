@@ -4,24 +4,14 @@ import requests
 import json
 import sys
 import tty
+from githubrequest import GithubRequest
 
 class ProjectBoard(object):
     def __init__(self, config):
         self.config = config
         self.project_id = None
         self.project_columns = []
-
-        username = config.get('login', 'username')
-        password = config.get('login', 'password')
-        credentials = f'{username}:{password}'.encode('utf-8')
-        authorization = b'Basic ' + base64.urlsafe_b64encode(credentials)
-
-        self.headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/vnd.github.inertia-preview+json",
-            "User-Agent": "nss/ticket-migrator",
-            "Authorization": authorization
-        }
+        self.grequest = GithubRequest(config)
 
     def create(self):
         # https://developer.github.com/v3/projects/#create-a-repository-project
@@ -33,9 +23,7 @@ class ProjectBoard(object):
         }
 
         url = f'{self.config.get("target", "url")}/projects'
-
-        res = requests.post(url=url, data=json.dumps(
-            project), headers=self.headers)
+        res = self.grequest.post(url, project)
 
         if (res.status_code == requests.codes.created):
             new_project = res.json()
@@ -61,8 +49,7 @@ class ProjectBoard(object):
         for col in self.columns:
             data = json.dumps({"name": col})
             url = url
-            res = requests.post(url=url,
-                                data=data, headers=self.headers)
+            res = self.grequest.post(url, data)
 
             new_column = res.json()
             print(f'Column {new_column["name"]} added to project')
@@ -77,10 +64,12 @@ class ProjectBoard(object):
 
         while True:
             url = f'{self.config.get("target", "url")}/issues?state=open&page={page}&direction=asc'
-            res = requests.get(url=url, headers=self.headers)
+            res = self.grequests.get(url=url)
             new_issues = res.json()
+
             if not new_issues:
                 break
+
             issues.extend(new_issues)
             page += 1
 
@@ -152,8 +141,7 @@ class ProjectBoard(object):
                 "content_id": issue["id"],
                 "content_type": "Issue"
             }
-            res = requests.post(url=url, data=json.dumps(
-                data), headers=self.headers)
+            res = self.grequests.post(url, data)
             card = res.json()
             print(
                 f'Card {card["id"]} added to backlog from issue ticket {issue["number"]}')

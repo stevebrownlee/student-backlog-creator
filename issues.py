@@ -1,3 +1,5 @@
+import termios
+import tty
 import sys
 import os
 import urllib.request
@@ -6,6 +8,7 @@ import urllib.parse
 import json
 import base64
 import datetime
+from githubrequest import GithubRequest
 
 
 http_error_messages = {}
@@ -15,125 +18,178 @@ http_error_messages[403] = http_error_messages[401]
 http_error_messages[404] = "ERROR: Unable to find the specified repository.\nDouble check the spelling for the source and target repositories. If either repository is private, make sure the specified user is allowed access to it."
 
 
-def import_issues(config, issues):
+class Issues(object):
+    def __init__(self, config, issue_ids):
+        self.config = config
+        self.issue_ids = issue_ids
+        self.grequest = GithubRequest(config)
 
-    new_issues = []
+    def migrate_issues(self):
+        source_issues = self.get_from_source()
+        print(source_issues)
 
-    for issue in issues:
+        issues_to_migrate = []
 
-        new_issue = {}
-        new_issue['title'] = issue['title']
+        for issue in source_issues:
+            new_issue = {}
+            new_issue['title'] = issue['title']
 
-        # Temporary fix for marking closed issues
-        if issue['closed_at']:
-            new_issue['title'] = "[CLOSED] " + new_issue['title']
+            template_data = {}
+            template_data['user_name'] = issue['user']['login']
+            template_data['user_url'] = issue['user']['html_url']
+            template_data['user_avatar'] = issue['user']['avatar_url']
+            template_data['date'] = self.format_date(issue['created_at'])
+            template_data['url'] = issue['html_url']
+            template_data['body'] = issue['body']
 
-        template_data = {}
-        template_data['user_name'] = issue['user']['login']
-        template_data['user_url'] = issue['user']['html_url']
-        template_data['user_avatar'] = issue['user']['avatar_url']
-        template_data['date'] = format_date(config, issue['created_at'])
-        template_data['url'] = issue['html_url']
-        template_data['body'] = issue['body']
+            new_issue['body'] = self.format_issue(template_data)
+            issues_to_migrate.append(new_issue)
 
-        new_issue['body'] = format_issue(config, template_data)
-        new_issues.append(new_issue)
+        organized_issues = self.organize_issues(issues_to_migrate)
 
-    print("You are about to add to '" +
-          config.get('target', 'repository') + "':")
-    print(" *", len(new_issues), "new issues")
-
-    result_issues = []
-    for issue in new_issues:
-        issue['labels'] = ['enhancement']
-        result_issue = send_import_request(config, 'target', "issues", issue)
-        print("Successfully created issue '%s'" % result_issue['title'])
-        result_issues.append(result_issue)
-
-    return result_issues
-
-
-def format_from_template(template_filename, template_data):
-    from string import Template
-    template_file = open(template_filename, 'r')
-    template = Template(template_file.read())
-    return template.substitute(template_data)
-
-
-def format_issue(config, template_data):
-    __location__ = os.path.realpath(os.path.join(
-        os.getcwd(), os.path.dirname(__file__)))
-    default_template = os.path.join(__location__, 'templates', 'issue.md')
-    template = config.get('format', 'issue_template',
-                          fallback=default_template)
-    return format_from_template(template, template_data)
-
-
-def format_date(config, datestring):
-    # The date comes from the API in ISO-8601 format
-    date = datetime.datetime.strptime(datestring, "%Y-%m-%dT%H:%M:%SZ")
-    date_format = config.get(
-        'format', 'date', fallback='%A %b %d, %Y at %H:%M GMT', raw=True)
-    return date.strftime(date_format)
-
-
-def get_issues_by_state(config, which, state):
-    issues = []
-    page = 1
-    while True:
-        new_issues = send_import_request(
-            config, which, f'issues?state={state}&direction=asc&page={page}')
-        if not new_issues:
-            break
-        issues.extend(new_issues)
-        page += 1
-    return issues
-
-
-def get_issue_by_id(config, which, issue_id):
-    return send_import_request(config, which, "issues/%d" % issue_id)
-
-
-def get_issues_by_id(config, which, issue_ids):
-    issues = []
-    for issue_id in issue_ids:
-        issues.append(get_issue_by_id(config, which, int(issue_id)))
-
-    return issues
-
-
-def send_import_request(config, which, url, post_data=None):
-
-    if post_data is not None:
-        post_data = json.dumps(post_data).encode("utf-8")
-
-    full_url = "%s/%s" % (config.get(which, 'url'), url)
-    req = urllib.request.Request(full_url, post_data)
-
-    username = config.get(which, 'username')
-    password = config.get(which, 'password')
-    req.add_header("Authorization", b"Basic " + base64.urlsafe_b64encode(
-        username.encode("utf-8") + b":" + password.encode("utf-8")))
-
-    req.add_header("Content-Type", "application/json")
-    req.add_header("Accept", "application/json")
-    req.add_header("User-Agent", "nss/ticket-migrator")
-
-    try:
-        response = urllib.request.urlopen(req)
-        json_data = response.read()
-    except urllib.error.HTTPError as error:
-
-        error_details = error.read()
-        error_details = json.loads(error_details.decode("utf-8"))
-
-        if error.code in http_error_messages:
-            sys.exit(http_error_messages[error.code])
+        if self.config.has_option('target', 'repository'):
+            target = self.config.get('target', 'repository')
+            self.send_to_target(target, organized_issues)
         else:
-            error_message = "ERROR: There was a problem importing the issues.\n%s %s" % (
-                error.code, error.reason)
-            if 'message' in error_details:
-                error_message += "\nDETAILS: " + error_details['message']
-            sys.exit(error_message)
+            target = None
 
-    return json.loads(json_data.decode("utf-8"))
+            while target != "x":
+                print("Target (e.g. nss-cohort-30/nutshell-tiny-toads). Enter x when done.")
+                target = input("> ")
+                self.send_to_target(target, organized_issues)
+
+    def send_to_target(self, target, issues):
+        github = self.config.get('server', 'base_url')
+        url = f'{github}/repos/{target}/issues'
+
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(f'You are about to migrate {len(issues)} new issues')
+
+        for issue in issues:
+            issue['labels'] = ['enhancement']
+            res = self.grequest.post(url, issue)
+            result_issue = res.json()
+            print(f'Successfully created issue \"{result_issue["title"]}\"')
+
+    def get_from_source(self):
+        issues = []
+
+        if (len(self.issue_ids) > 0):
+            issues.extend(self.get_issues_by_id())
+        else:
+            issues.extend(self.get_open_issues())
+
+        # Sort issues based on their original `id` field
+        issues.sort(key=lambda x: x['number'])
+
+        return issues
+
+    def organize_issues(self, issues):
+        fd = sys.stdin.fileno()
+        old = termios.tcgetattr(fd)
+        old[3] = old[3] | termios.ECHO
+
+
+        tty.setcbreak(sys.stdin)
+
+        active_issue = 0
+        issue_count = len(issues) - 1
+        choice = None
+
+        while choice != 10:
+            os.system('cls' if os.name == 'nt' else 'clear')
+
+            # k
+            if choice == 107:
+                if active_issue > 0:
+                    active_issue -= 1
+
+            # j
+            if choice == 106:
+                if active_issue < issue_count:
+                    active_issue += 1
+
+            # d
+            if choice == 100:
+                if active_issue < issue_count:
+                    a, b = active_issue, active_issue + 1
+                    issues[b], issues[a] = issues[a], issues[b]
+                    active_issue += 1
+
+            # u
+            if choice == 117:
+                if active_issue > 0:
+                    a, b = active_issue - 1, active_issue
+                    issues[b], issues[a] = issues[a], issues[b]
+                    active_issue -= 1
+
+            for idx, issue in enumerate(issues):
+                if idx == active_issue:
+                    print(f'(⭐️) {issue["title"]}')
+                else:
+                    print(f'(  ) {issue["title"]}')
+
+            print('\n\nj=cursor up   k=cursor down   u=move up   d=move down')
+            choice = ord(sys.stdin.read(1))
+
+        termios.tcsetattr(fd, termios.TCSADRAIN, old)
+        issues.reverse()
+        return issues
+
+    def format_from_template(self, template_filename, template_data):
+        from string import Template
+        template_file = open(template_filename, 'r')
+        template = Template(template_file.read())
+        return template.substitute(template_data)
+
+    def format_issue(self, template_data):
+        __location__ = os.path.realpath(os.path.join(
+            os.getcwd(), os.path.dirname(__file__)))
+        default_template = os.path.join(__location__, 'templates', 'issue.md')
+        template = self.config.get('format', 'issue_template',
+                                   fallback=default_template)
+        return self.format_from_template(template, template_data)
+
+    def format_date(self, datestring):
+        # The date comes from the API in ISO-8601 format
+        date = datetime.datetime.strptime(datestring, "%Y-%m-%dT%H:%M:%SZ")
+        date_format = self.config.get(
+            'format', 'date', fallback='%A %b %d, %Y at %H:%M GMT', raw=True)
+        return date.strftime(date_format)
+
+    def get_open_issues(self):
+        # https://developer.github.com/v3/issues/#list-issues-for-a-repository
+        # GET /repos/:owner/:repo/issues
+
+        issues = []
+        page = 1
+
+        github = self.config.get('server', 'base_url')
+        source = self.config.get('source', 'repository')
+
+        url = f'{github}/repos/{source}/issues?state=open&direction=asc'
+        print(url)
+
+        while True:
+            res = self.grequest.get(f'{url}&page={page}')
+            new_issues = res.json()
+            if not new_issues:
+                break
+            issues.extend(new_issues)
+            page += 1
+
+        return issues
+
+    def get_issues_by_id(self):
+        issues = []
+        github = self.config.get('server', 'base_url')
+        source = self.config.get('source', 'repository')
+
+        for issue_id in self.issue_ids:
+            url = f'{github}/repos/{source}/issues/{int(issue_id)}'
+            print(url)
+            res = self.grequest.get(url)
+            new_issue = json.loads(res.json())
+            issues.append(new_issue)
+
+        return issues

@@ -56,13 +56,13 @@ That's all you will need to change each time you run this tool.
 To migrate all open ticket from source to target, use the `-a` flag.
 
 ```sh
-./migrate -a
+python migrate.py -a
 ```
 
 To migrate some of the open tickets from source to target, use the `-i` flag and then the numbers of the tickets. The following command would only migrate 6 specific tickets.
 
 ```sh
-./migrate -i 2 5 6 9 13 20
+python migrate.py -i 2 5 6 9 13 20
 ```
 
 ## Deactivating Virtual Environment
