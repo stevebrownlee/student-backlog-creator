@@ -65,6 +65,22 @@ To migrate some of the open tickets from source to target, use the `-i` flag and
 python migrate.py -i 2 5 6 9 13 20
 ```
 
+Once the program starts, it will import the issues from the source repository, and then present you with a list of issues where you can order them.
+
+Use the `j` and `k` keys to select issues.
+
+Use the `u` and `d` keys to move issues up and down the order.
+
+Once you are done ordering the issues, press return to continue.
+
+![](./order-issues.gif)
+
+Then you can enter in the target repository. Once you press enter, the issues will be migrated to the target repository, a project board will be created, and the issues added to a Backlog column.
+
+![](./migration-process.gif)
+
+You can continue to add target repositories and run the migration for each one. Once all migrations are done, enter `x` to end the program.
+
 ## Deactivating Virtual Environment
 
 When you are done migrating issues to all of your students' repositories, first enter in the command `deactivate` in your terminal to stop the venv. If you later try to activate the venv again and you see the message:
