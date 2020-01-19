@@ -24,6 +24,7 @@ class ProjectBoard(object):
     def create(self):
         # https://developer.github.com/v3/projects/#create-a-repository-project
         # POST /repos/:owner/:repo/projects
+
         project = {
             "name": self.config.get("project", "name"),
             "body": "NSS Student Project"
@@ -47,10 +48,6 @@ class ProjectBoard(object):
             print(f'Project creation failed')
             print(res.text)
 
-    def get_column(self, column):
-        # https://developer.github.com/v3/projects/columns/#get-a-project-column
-        pass
-
     def create_columns(self):
         # https://developer.github.com/v3/projects/columns/#create-a-project-column
         # POST /projects/:project_id/columns
@@ -58,12 +55,10 @@ class ProjectBoard(object):
         self.columns = json.loads(self.config.get('project', 'columns'))
 
         url = f'https://api.github.com/projects/{self.project_id}/columns'
-        # url = f'https://api.github.com/projects/3823604/columns'
 
         for col in self.columns:
             data = json.dumps({"name": col})
             url = url
-
             res = requests.post(url=url,
                                 data=data, headers=self.headers)
 
@@ -80,7 +75,6 @@ class ProjectBoard(object):
         target_issues = res.json()
         return target_issues
 
-
     def add_target_issues_to_backlog(self):
         # https://developer.github.com/v3/projects/cards/#create-a-project-card
         # POST /projects/columns/:column_id/cards
@@ -88,6 +82,7 @@ class ProjectBoard(object):
         #     "content_id": issue.id,
         #     "content_type": "Issue"
         # }
+
         issues = self.get_target_issues()
         backlog = self.project_columns[0]["id"]
         url = f'https://api.github.com/projects/columns/{backlog}/cards'
@@ -98,7 +93,7 @@ class ProjectBoard(object):
                 "content_id": issue["id"],
                 "content_type": "Issue"
             }
-            res = requests.post(url=url, data=json.dumps(data), headers=self.headers)
+            res = requests.post(url=url, data=json.dumps(
+                data), headers=self.headers)
             card = res.json()
             print(f'Issue "{card["id"]}" added to Backlog column')
-
