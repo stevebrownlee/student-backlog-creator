@@ -8,15 +8,13 @@ This tool will allow instructors to specify one of our source repositories that 
 
 Install pipenv with `brew install pipenv`
 
-## Instructions
-
-### Environment
+## Environment
 
 1. Clone this repo
 1. Run `pipenv install` to get dependencies
 1. Run `pipenv shell` to activate virtual environment
 
-### Configuration
+## Configuration
 
 1. Copy `config.ini.sample` to `config.ini` and open the new file.
 1. In the login section, enter in your account name and password (no 2FA) or personal access token (needed if you have 2FA). See section below about how to generate a personal access token.
@@ -30,7 +28,7 @@ Install pipenv with `brew install pipenv`
     [source]
     repository = nashville-software-school/nutshell
     ```
-1. Specify the account and repo to which the issues will be imported.
+1. Specify the account and repo to which the issues will be imported. If you plan on importing into multiple student repos, you can comment the `repository` setting out by putting a semi-colon before it.
     ```ini
     [target]
     repository = nss-cohort-37/callous-capybaras-nutshell
@@ -51,9 +49,11 @@ That's all you will need to change each time you run this tool.
 > media_type = application/vnd.github.inertia-preview+json
 > ```
 
-### Running the Migration
+## Running the Migration
 
-To migrate all open ticket from source to target, use the `-a` flag.
+### Single Migration
+
+For a single migration, make sure you have a a value for the target repository in the config file, and it is uncommented. To migrate all open ticket from source to target, use the `-a` flag.
 
 ```sh
 python migrate.py -a
@@ -64,6 +64,24 @@ To migrate some of the open tickets from source to target, use the `-i` flag and
 ```sh
 python migrate.py -i 2 5 6 9 13 20
 ```
+
+### Multiple Migrations in a Single Run
+
+If you want to migrate to multiple repos, make sure that the target repository value in the config file is commented out.
+
+```ini
+[target]
+; repository = stevebrownlee/nutshell-test
+```
+
+Then use the `-m` flag when you run the program.
+
+```sh
+python migrate.py -m -a
+# or
+python migrate.py -m -i 2 5 6 9 13 20
+```
+
 
 Once the program starts, it will import the issues from the source repository, and then present you with a list of issues where you can order them.
 
