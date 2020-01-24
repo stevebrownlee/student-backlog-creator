@@ -15,6 +15,10 @@ repository = nss-cohort-37/callous-capybaras-nutshell
 name = Nutshell
 columns = ["Backlog", "In Progress", "Ready to Test", "Complete"]
 
+[server]
+base_url = https://api.github.com
+media_type = application/vnd.github.inertia-preview+json
+
 [github]
 media_type = application/vnd.github.inertia-preview+json
 
