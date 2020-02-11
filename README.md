@@ -124,6 +124,7 @@ If you have 2FA enabled on your Github account, you will need to create a person
 1. Click on Personal Access Tokens
 1. Click on Generate New Token
 1. Call the new token _Backlog generator_
+1. Check all of the checkboxes for permissions
 1. Scroll down and click the Generate Token button
 1. Copy the token that gets created
 1. Paste it into the `password` key in the `config.ini` file.
