@@ -79,8 +79,7 @@ class Issues(object):
             try:
                 res = self.grequest.post(url, issue)
                 result_issue = res.json()
-                print(
-                    f'Successfully created issue \"{result_issue["title"]}\"')
+                print(f'Successfully created issue \"{result_issue["title"]}\"')
                 target_issues.append(result_issue)
             except KeyError as err:
                 print(f'Error creating issue. {err}.')
@@ -209,8 +208,7 @@ class Issues(object):
             print(url)
             res = self.grequest.get(url)
             content = res.json()
-            new_issue = content if type(
-                content) is dict else json.loads(content)
+            new_issue = content if type(content) is dict else json.loads(content)
             issues.append(new_issue)
 
         return issues
