@@ -28,10 +28,11 @@ Install pipenv with `brew install pipenv`
     [source]
     repository = nashville-software-school/nutshell
     ```
-1. Specify the account and repo to which the issues will be imported. If you plan on importing into multiple student repos, you can comment the `repository` setting out by putting a semi-colon before it.
+1. Specify the account and repo(s) to which the issues will be imported. Multiple repos should be separated by a comma. Comment out this line with a semicolon (;) to be prompted to enter the repos when the app runs.
     ```ini
     [target]
-    repository = nss-cohort-37/callous-capybaras-nutshell
+    repository = nss-cohort-37/callous-capybaras-nutshell,
+                 nss-cohort-37/foo-bar-baz-nutshell
     ```
 1. Specify the name of the project board you want to create on the student repository. If you want different swimlanes for tickets, just change the items in the `columns` list.
     ```ini
