@@ -203,7 +203,8 @@ class Issues(object):
             url = f'{github}/repos/{source}/issues/{int(issue_id)}'
             print(url)
             res = self.grequest.get(url)
-            new_issue = json.loads(res.json())
+            content = res.json()
+            new_issue = content if type(content) is dict else json.loads(content)
             issues.append(new_issue)
 
         return issues
