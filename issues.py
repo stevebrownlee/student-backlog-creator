@@ -99,7 +99,7 @@ class Issues(object):
             issues.extend(self.get_open_issues())
 
         # Sort issues based on their original `id` field
-        issues.sort(key=lambda x: x['number'])
+        issues.sort(key=lambda x: x['number'], reverse=True)
 
         return issues
 
