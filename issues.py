@@ -8,6 +8,7 @@ import urllib.parse
 import json
 import base64
 import datetime
+import time
 from githubrequest import GithubRequest
 from project import ProjectBoard
 
@@ -49,8 +50,11 @@ class Issues(object):
         organized_issues = self.organize_issues(issues_to_migrate)
 
         if self.config.has_option('target', 'repository'):
-            target = self.config.get('target', 'repository')
-            self.send_to_target(target, organized_issues)
+            target_text = self.config.get('target', 'repository')
+            targets = [t.strip() for t in target_text.split(',')]
+            for target in targets:
+                time.sleep(1)
+                self.send_to_target(target, organized_issues)
         else:
             target = None
 
@@ -68,7 +72,7 @@ class Issues(object):
         url = f'{github}/repos/{target}/issues'
 
         os.system('cls' if os.name == 'nt' else 'clear')
-        print(f'You are about to migrate {len(issues)} new issues')
+        print(f'You are about to migrate {len(issues)} new issues to {target}')
 
         for issue in issues:
             issue['labels'] = ['enhancement']
