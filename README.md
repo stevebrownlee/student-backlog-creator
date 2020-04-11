@@ -115,6 +115,24 @@ Then you can enter in the target repository. Once you press enter, the issues wi
 
 You can continue to add target repositories and run the migration for each one. Once all migrations are done, enter `x` to end the program.
 
+## Creating Retrospective Boards
+
+When your teams are on their last day of the project, you can run this application again to create the retrospective boards and add the columns to it.
+
+Make sure you have the following configuration section in `config.ini` file.
+
+```ini
+[retrospective]
+name = {Group Project} Retrospective
+columns = ["Glad", "Sad", "Kudos"]
+```
+
+Then run the application again, but only with the `-r` flag.
+
+```sh
+python migrate.py -r
+```
+
 ## Deactivating Virtual Environment
 
 When you are done migrating issues to all of your students' repositories, first enter in the command `deactivate` in your terminal to stop the venv. If you later try to activate the venv again and you see the message:
