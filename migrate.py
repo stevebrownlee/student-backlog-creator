@@ -4,12 +4,15 @@ import query
 import argparse
 import configparser
 from issues import Issues
+from retrospective import RetroBoard
 
 
 __location__ = os.path.realpath(os.path.join(
     os.getcwd(), os.path.dirname(__file__)))
 default_config_file = os.path.join(__location__, 'config.ini')
 config = configparser.RawConfigParser()
+
+isRetro = False
 
 def init_config():
 
@@ -19,6 +22,7 @@ def init_config():
     config.add_section('format')
     config.add_section('settings')
     config.add_section('server')
+    config.add_section('retrospective')
 
     arg_parser = argparse.ArgumentParser(
         description="Import issues from one GitHub repository into another.")
@@ -43,7 +47,10 @@ def init_config():
     include_group = arg_parser.add_mutually_exclusive_group(required=True)
     include_group.add_argument("-a", "--all", dest='import_all', action='store_true',
                                help="Import all open issues.")
-    include_group.add_argument('-i', '--issues', nargs='+', type=int, help="The list of issues to import. (e.g. -i 1 5 6 10 15)")
+    include_group.add_argument('-i', '--issues', nargs='+', type=int,
+            help="The list of issues to import. (e.g. -i 1 5 6 10 15)")
+    include_group.add_argument('-r', '--retrospective', dest="retrospective", action='store_true',
+            help="Set this flag if you want to create the retro board and columns in the target repositories.")
 
     args = arg_parser.parse_args()
 
@@ -83,6 +90,12 @@ def init_config():
     if args.multiple:
         config.set('settings', 'multiple', True)
 
+    if args.retrospective:
+        config.set('settings', 'retrospective', True)
+    else:
+        config.set('settings', 'retrospective', False)
+
+
     # Make sure no required config values are missing
     if not config.has_option('source', 'repository'):
         sys.exit(
@@ -99,6 +112,13 @@ def init_config():
 if __name__ == '__main__':
 
     issue_ids = init_config()
-    issue_manager = Issues(config, issue_ids)
-    issue_manager.migrate_issues()
+
+    if config.get('settings', 'retrospective'):
+        retro = RetroBoard(config)
+        retro.create()
+    else:
+        issue_manager = Issues(config, issue_ids)
+        issue_manager.migrate_issues()
+
+
 

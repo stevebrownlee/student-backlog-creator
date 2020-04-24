@@ -28,12 +28,22 @@ Install pipenv with `brew install pipenv`
     [source]
     repository = nashville-software-school/nutshell
     ```
-1. Specify the account and repo(s) to which the issues will be imported. Multiple repos should be separated by a comma. Comment out this line with a semicolon (;) to be prompted to enter the repos when the app runs.
+1. Specify the account and repo(s) to which the issues will be imported.
+    #### Specify all targets in config
+    Make sure the `target` config is uncommented, and provide a comma-delimited list of target repositories.
     ```ini
     [target]
     repository = nss-cohort-37/callous-capybaras-nutshell,
-                 nss-cohort-37/foo-bar-baz-nutshell
+                 nss-cohort-37/foo-bar-baz-nutshell,
+                 nss-cohort-37/chicken-monkeys-nutshell
     ```
+    #### Specify all targets during execution
+    Comment out the target if you want to enter in the target repos during the execution of the program.
+    ```ini
+    [target]
+    ; repository = nss-cohort-37/callous-capybaras-nutshell
+    ```
+
 1. Specify the name of the project board you want to create on the student repository. If you want different swimlanes for tickets, just change the items in the `columns` list.
     ```ini
     [project]
@@ -54,7 +64,7 @@ That's all you will need to change each time you run this tool.
 
 ### Single Migration
 
-For a single migration, make sure you have a a value for the target repository in the config file, and it is uncommented. To migrate all open ticket from source to target, use the `-a` flag.
+For a single migration, make sure you have a a value for the target repository in the config file, and it is uncommented. To migrate all open tickets from source to target, use the `-a` flag.
 
 ```sh
 python migrate.py -a
@@ -68,23 +78,28 @@ python migrate.py -i 2 5 6 9 13 20
 
 ### Multiple Migrations in a Single Run
 
-If you want to migrate to multiple repos, make sure that the target repository value in the config file is commented out.
+If you want to migrate to multiple repos, make sure that the `target` repository value in the config file has **all** of the repositories you want to migrate the tickets to.
 
 ```ini
 [target]
-; repository = stevebrownlee/nutshell-test
+repository = nss-cohort-37/callous-capybaras-nutshell,
+                nss-cohort-37/foo-bar-baz-nutshell,
+                nss-cohort-37/chicken-monkeys-nutshell
 ```
 
 Then use the `-m` flag when you run the program.
 
 ```sh
+# Migrate all tickets from source to target
 python migrate.py -m -a
-# or
+
+# Migrate specific tickets from source to target
 python migrate.py -m -i 2 5 6 9 13 20
 ```
 
+## Ordering the Issue Tickets
 
-Once the program starts, it will import the issues from the source repository, and then present you with a list of issues where you can order them.
+Once the program starts, it will import the issues from the source repository, and then present them to you in a list so that you can order them.
 
 Use the `j` and `k` keys to select issues.
 
@@ -99,6 +114,24 @@ Then you can enter in the target repository. Once you press enter, the issues wi
 ![](./migration-process.gif)
 
 You can continue to add target repositories and run the migration for each one. Once all migrations are done, enter `x` to end the program.
+
+## Creating Retrospective Boards
+
+When your teams are on their last day of the project, you can run this application again to create the retrospective boards and add the columns to it.
+
+Make sure you have the following configuration section in `config.ini` file.
+
+```ini
+[retrospective]
+name = {Group Project} Retrospective
+columns = ["Glad", "Sad", "Kudos"]
+```
+
+Then run the application again, but only with the `-r` flag.
+
+```sh
+python migrate.py -r
+```
 
 ## Deactivating Virtual Environment
 
