@@ -47,6 +47,7 @@ class Issues(object):
             new_issue['body'] = self.format_issue(template_data)
             issues_to_migrate.append(new_issue)
 
+        issues_to_migrate.reverse()
         organized_issues = self.organize_issues(issues_to_migrate)
 
         if self.config.has_option('target', 'repository'):
