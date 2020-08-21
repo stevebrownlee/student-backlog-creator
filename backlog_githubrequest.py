@@ -1,9 +1,6 @@
-import os
 import base64
 import requests
 import json
-import sys
-import tty
 
 class GithubRequest(object):
     def __init__(self, config):

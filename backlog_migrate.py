@@ -1,10 +1,9 @@
 import sys
 import os
-import query
 import argparse
 import configparser
-from issues import Issues
-from retrospective import RetroBoard
+from backlog_issues import Issues
+from backlog_retrospective import RetroBoard
 
 
 __location__ = os.path.realpath(os.path.join(

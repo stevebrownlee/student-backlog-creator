@@ -1,11 +1,8 @@
-import os
 import base64
 import requests
 import json
-import sys
-import tty
 import time
-from githubrequest import GithubRequest
+from backlog_githubrequest import GithubRequest
 
 class RetroBoard(object):
     def __init__(self, config):
