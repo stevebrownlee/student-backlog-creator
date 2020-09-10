@@ -2,7 +2,7 @@
 
 This tool will allow instructors to specify one of our source repositories that has issues tickets, and then import them into a student repository, create a project board, and add all of the tickets to the backlog swimlane.
 
-![animation showing the creation of the project, columns, and tickets](./backlog-creator.gif)
+![animation showing the creation of the project, columns, and tickets](./images/backlog-creator.gif)
 
 ## Prerequisites
 
@@ -67,13 +67,13 @@ That's all you will need to change each time you run this tool.
 For a single migration, make sure you have a a value for the target repository in the config file, and it is uncommented. To migrate all open tickets from source to target, use the `-a` flag.
 
 ```sh
-python migrate.py -a
+python backlog_migrate.py -a
 ```
 
 To migrate some of the open tickets from source to target, use the `-i` flag and then the numbers of the tickets. The following command would only migrate 6 specific tickets.
 
 ```sh
-python migrate.py -i 2 5 6 9 13 20
+python backlog_migrate.py -i 2 5 6 9 13 20
 ```
 
 ### Multiple Migrations in a Single Run
@@ -91,10 +91,10 @@ Then use the `-m` flag when you run the program.
 
 ```sh
 # Migrate all tickets from source to target
-python migrate.py -m -a
+python backlog_migrate.py -m -a
 
 # Migrate specific tickets from source to target
-python migrate.py -m -i 2 5 6 9 13 20
+python backlog_migrate.py -m -i 2 5 6 9 13 20
 ```
 
 ## Ordering the Issue Tickets
@@ -107,11 +107,12 @@ Use the `u` and `d` keys to move issues up and down the order.
 
 Once you are done ordering the issues, press return to continue.
 
-![](./order-issues.gif)
+![](./images/order-issues.gif)
 
-Then you can enter in the target repository. Once you press enter, the issues will be migrated to the target repository, a project board will be created, and the issues added to a Backlog column.
 
-![](./migration-process.gif)
+Once you press enter, the issues will be migrated to the target repository, a project board will be created, and the issues added to a Backlog column.
+
+![](./images/migration-process.gif)
 
 You can continue to add target repositories and run the migration for each one. Once all migrations are done, enter `x` to end the program.
 
@@ -130,7 +131,7 @@ columns = ["Glad", "Sad", "Kudos"]
 Then run the application again, but only with the `-r` flag.
 
 ```sh
-python migrate.py -r
+python backlog_migrate.py -r
 ```
 
 ## Deactivating Virtual Environment

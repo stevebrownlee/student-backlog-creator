@@ -1,10 +1,7 @@
-import os
-import base64
 import requests
 import json
-import sys
-import tty
-from githubrequest import GithubRequest
+from backlog_githubrequest import GithubRequest
+
 
 class ProjectBoard(object):
     def __init__(self, config):
@@ -74,54 +71,6 @@ class ProjectBoard(object):
             issues.extend(new_issues)
             page += 1
 
-        # ordered_issues = self.organize_issues(issues)
-        return issues
-
-    def organize_issues(self, issues):
-        tty.setcbreak(sys.stdin)
-
-        active_issue = 0
-        issue_count = len(issues) - 1
-        choice = None
-
-        while choice != 10:
-            os.system('cls' if os.name == 'nt' else 'clear')
-
-            # k
-            if choice == 107:
-                if active_issue > 0:
-                    active_issue -= 1
-
-            # j
-            if choice == 106:
-                if active_issue < issue_count:
-                    active_issue += 1
-
-            # d
-            if choice == 100:
-                if active_issue < issue_count:
-                    a, b = active_issue, active_issue + 1
-                    issues[b], issues[a] = issues[a], issues[b]
-                    active_issue += 1
-
-            # u
-            if choice == 117:
-                if active_issue > 0:
-                    a, b = active_issue - 1, active_issue
-                    issues[b], issues[a] = issues[a], issues[b]
-                    active_issue -= 1
-
-
-            for idx, issue in enumerate(issues):
-                if idx == active_issue:
-                    print(f'(⭐️) {issue["title"]}')
-                else:
-                    print(f'(  ) {issue["title"]}')
-
-            print('\n\nj=cursor up   k=cursor down   u=move up   d=move down')
-            choice = ord(sys.stdin.read(1))
-
-        issues.reverse()
         return issues
 
     def add_target_issues_to_backlog(self, issues):
@@ -132,7 +81,6 @@ class ProjectBoard(object):
         #     "content_type": "Issue"
         # }
 
-        # issues = self.get_target_issues()
         backlog = self.project_columns[0]["id"]
         url = f'https://api.github.com/projects/columns/{backlog}/cards'
         print(f'Adding open issues to {url}')
@@ -144,4 +92,5 @@ class ProjectBoard(object):
             }
             res = self.grequest.post(url, data)
             card = res.json()
-            print(f'Card {card["id"]} added to backlog from issue ticket {issue["number"]}')
+            print(
+                f'Card {card["id"]} added to backlog from issue ticket {issue["number"]}')
