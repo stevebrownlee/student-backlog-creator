@@ -4,7 +4,6 @@ import sys
 import os
 import json
 import datetime
-import time
 from backlog_githubrequest import GithubRequest
 from backlog_project import ProjectBoard
 
@@ -50,7 +49,6 @@ class Issues(object):
             target_text = self.config.get('target', 'repository')
             targets = [t.strip() for t in target_text.split(',')]
             for target in targets:
-                time.sleep(1)
                 self.send_to_target(target, organized_issues)
         else:
             target = None
