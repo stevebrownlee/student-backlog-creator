@@ -1,7 +1,6 @@
 import base64
 import requests
 import json
-import time
 from backlog_githubrequest import GithubRequest
 
 class RetroBoard(object):
@@ -23,8 +22,6 @@ class RetroBoard(object):
             target_text = self.config.get('target', 'repository')
             targets = [t.strip() for t in target_text.split(',')]
             for target in targets:
-                time.sleep(1)
-
                 github = self.config.get('server', 'base_url')
                 url = f'{github}/repos/{target}/projects'
                 res = self.grequest.post(url, project)
