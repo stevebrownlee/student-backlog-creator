@@ -85,7 +85,7 @@ class ProjectBoard(object):
         url = f'https://api.github.com/projects/columns/{backlog}/cards'
         print(f'Adding open issues to {url}')
 
-        for issue in issues:
+        for issue in reversed(issues):
             data = {
                 "content_id": issue["id"],
                 "content_type": "Issue"
