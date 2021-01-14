@@ -62,8 +62,7 @@ def init_config():
             return False
 
     if args.no_config:
-        print(
-            "Ignoring default config file. You may be prompted for some missing settings.")
+        print("Ignoring default config file. You may be prompted for some missing settings.")
     elif args.config:
         config_file_name = args.config
         if load_config_file(config_file_name):

@@ -4,6 +4,8 @@ import sys
 import os
 import json
 import datetime
+from rich import print
+from rich.progress import track
 from backlog_githubrequest import GithubRequest
 from backlog_project import ProjectBoard
 
@@ -66,13 +68,13 @@ class Issues(object):
         url = f'{github}/repos/{target}/issues'
 
         os.system('cls' if os.name == 'nt' else 'clear')
-        print(f'You are about to migrate {len(issues)} new issues to {target}')
 
-        for issue in issues:
+        for issue in track(issues, description="Migrating..."):
             issue['labels'] = ['enhancement']
             try:
                 res = self.grequest.post(url, issue)
                 result_issue = res.json()
+                os.system('cls' if os.name == 'nt' else 'clear')
                 print(f'Successfully created issue \"{result_issue["title"]}\"')
                 target_issues.append(result_issue)
             except KeyError as err:
@@ -137,11 +139,11 @@ class Issues(object):
 
             for idx, issue in enumerate(issues):
                 if idx == active_issue:
-                    print(f'(⭐️) {issue["title"]}')
+                    print(f'[dark_magenta](⭐️)[/dark_magenta] [dodger_blue2]{issue["title"]}[/dodger_blue2]')
                 else:
-                    print(f'(  ) {issue["title"]}')
+                    print(f'[dark_magenta](  )[/dark_magenta] [chartreuse3]{issue["title"]}[/chartreuse3]')
 
-            print('\n\nj=cursor up   k=cursor down   u=move up   d=move down')
+            print('\n\nj=[light_goldenrod1]cursor up[/light_goldenrod1]   k=[light_goldenrod1]cursor down[/light_goldenrod1]   u=[light_goldenrod1]move up[/light_goldenrod1]   d=[light_goldenrod1]move down[/light_goldenrod1]')
             choice = ord(sys.stdin.read(1))
 
         termios.tcsetattr(fd, termios.TCSADRAIN, old)

@@ -1,7 +1,12 @@
 import base64
-import requests
 import json
 import time
+import os
+import requests
+from requests.exceptions import ConnectionError
+from rich import print
+from rich.progress import track
+
 
 class GithubRequest(object):
     def __init__(self, config):
@@ -19,18 +24,26 @@ class GithubRequest(object):
             "Authorization": authorization
         }
 
-
     def get(self, url):
         return self.request_with_retry(
             lambda: requests.get(url=url, headers=self.headers))
 
-
     def post(self, url, data):
         json_data = json.dumps(data)
 
-        return self.request_with_retry(
-            lambda: requests.post(url=url, data=json_data, headers=self.headers))
+        try:
+            result = self.request_with_retry(
+                lambda: requests.post(url=url, data=json_data, headers=self.headers))
 
+            return result
+
+        except TimeoutError:
+            print("Request timed out. Trying next...")
+
+        except ConnectionError:
+            print("Request timed out. Trying next...")
+
+        return None
 
     def request_with_retry(self, request):
         retry_after_seconds = 30
@@ -38,13 +51,14 @@ class GithubRequest(object):
         response = request()
 
         while response.status_code == 403:
-            print(f"\n--- Got a 403 from Github. Sleeping for {retry_after_seconds} seconds ---")
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print(
+                f"[deep_pink2]Got a 403 from Github. Sleeping for {retry_after_seconds} seconds[/deep_pink2]")
             self.sleep_with_countdown(retry_after_seconds)
 
             response = request()
 
         return response
-
 
     def sleep_with_countdown(self, countdown_seconds):
         ticks = countdown_seconds * 2
@@ -56,11 +70,10 @@ class GithubRequest(object):
             if count:
                 progress = progress[:-1] + '>'
 
-            print(f'  {spinner} [{progress.ljust(ticks)}] {remaining}', end='\r')
+            print(
+                f'[bright_white]  {spinner} [{progress.ljust(ticks)}] {remaining}[/bright_white]', end='\r')
 
             if count:
                 time.sleep(0.5)
 
         print()
-
-
