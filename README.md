@@ -10,9 +10,9 @@ Install pipenv with `brew install pipenv`
 
 ## Environment
 
-1. Clone this repo
-1. Run `pipenv install` to get dependencies
+1. Clone this repo and `cd` to the directory
 1. Run `pipenv shell` to activate virtual environment
+1. Run `pipenv install` to get dependencies
 
 ## Configuration
 
