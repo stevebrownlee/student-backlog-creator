@@ -90,7 +90,7 @@ class ProjectBoard(object):
         backlog = self.project_columns[0]["id"]
         url = f'https://api.github.com/projects/columns/{backlog}/cards'
         # print(f'Adding open issues to {url}')
-        issues.reverse()
+        # issues.reverse()
 
         os.system('cls' if os.name == 'nt' else 'clear')
         for issue in track(issues, description="Adding to backlog..."):
