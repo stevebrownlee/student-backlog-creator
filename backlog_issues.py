@@ -40,8 +40,8 @@ class Issues(object):
             template_data['date'] = self.format_date(issue['created_at'])
             template_data['url'] = issue['html_url']
             template_data['body'] = issue['body']
-
             new_issue['body'] = self.format_issue(template_data)
+            new_issue['labels'] = [label['name'] for label in issue['labels']]
             issues_to_migrate.append(new_issue)
 
         organized_issues = self.organize_issues(issues_to_migrate)
@@ -70,7 +70,6 @@ class Issues(object):
         os.system('cls' if os.name == 'nt' else 'clear')
 
         for issue in track(issues, description="Migrating..."):
-            issue['labels'] = ['enhancement']
             try:
                 res = self.grequest.post(url, issue)
                 result_issue = res.json()
