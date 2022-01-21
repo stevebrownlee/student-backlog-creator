@@ -30,7 +30,7 @@ class GithubRequest(object):
 
     def post(self, url, data):
         json_data = json.dumps(data)
-
+        time.sleep(2)
         try:
             result = self.request_with_retry(
                 lambda: requests.post(url=url, data=json_data, headers=self.headers))
