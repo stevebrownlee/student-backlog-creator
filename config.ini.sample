@@ -9,8 +9,8 @@ password = xxxxx.xxxx.x.x.x.xxxx.x.xx.xxxx.xxx.xxxx
 repository = nashville-software-school/nutshell
 
 [target]
-repository = nss-cohort-37/callous-capybaras-nutshell,
-             nss-cohort-37/foo-bar-baz-nutshell
+repository = nss-day-cohort-37/callous-capybaras-nutshell,
+             nss-day-cohort-37/foo-bar-baz-nutshell
 
 [project]
 name = Nutshell
