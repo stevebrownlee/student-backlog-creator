@@ -1,4 +1,4 @@
-import time
+from time import sleep
 import os
 import requests
 import json
@@ -32,7 +32,7 @@ class ProjectBoard(object):
             self.project_id = new_project["id"]
             print(
                 f'Project {new_project["name"]} with id {new_project["id"]} created on target repository')
-            time.sleep(3)
+            sleep(3)
         else:
             with open('response.txt', 'wb') as fd:
                 for chunk in res.iter_content(chunk_size=128):
@@ -95,6 +95,9 @@ class ProjectBoard(object):
 
         os.system('cls' if os.name == 'nt' else 'clear')
         for issue in track(issues, description="Adding to backlog..."):
+
+            sleep(5)
+
             data = {
                 "content_id": issue["id"],
                 "content_type": "Issue"

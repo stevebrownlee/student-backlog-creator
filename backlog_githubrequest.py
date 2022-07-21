@@ -46,11 +46,17 @@ class GithubRequest(object):
         return None
 
     def request_with_retry(self, request):
-        retry_after_seconds = 30
+        retry_after_seconds = 10
 
         response = request()
 
         while response.status_code == 403:
+
+            f = open("http.log", "a")
+            f.write(json.dumps(response.json()))
+            f.write("\n")
+            f.close()
+
             os.system('cls' if os.name == 'nt' else 'clear')
             print(
                 f"[deep_pink2]Got a 403 from Github. Sleeping for {retry_after_seconds} seconds[/deep_pink2]")

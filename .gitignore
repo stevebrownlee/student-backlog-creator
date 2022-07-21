@@ -8,3 +8,4 @@ obj
 *.sqlite3
 config.ini
 .vscode
+http.log

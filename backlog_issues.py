@@ -1,4 +1,5 @@
 import termios
+from time import sleep
 import tty
 import sys
 import os
@@ -70,6 +71,9 @@ class Issues(object):
         os.system('cls' if os.name == 'nt' else 'clear')
 
         for issue in track(issues, description="Migrating..."):
+
+            sleep(5)
+
             issue['labels'] = ['enhancement']
             try:
                 res = self.grequest.post(url, issue)
