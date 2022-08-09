@@ -85,10 +85,10 @@ class Issues(object):
                 print(f'Error creating issue. {err}.')
                 print(result_issue)
 
-        project_manager = ProjectBoard(self.config)
-        project_manager.create(target)
-        project_manager.create_columns()
-        project_manager.add_target_issues_to_backlog(target_issues)
+        # project_manager = ProjectBoard(self.config)
+        # project_manager.create(target)
+        # project_manager.create_columns()
+        # project_manager.add_target_issues_to_backlog(target_issues)
 
     def get_from_source(self):
         issues = []
