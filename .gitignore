@@ -9,3 +9,4 @@ obj
 config.ini
 .vscode
 http.log
+.env*

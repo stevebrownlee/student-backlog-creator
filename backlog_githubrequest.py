@@ -46,15 +46,17 @@ class GithubRequest(object):
         return None
 
     def request_with_retry(self, request):
-        retry_after_seconds = 10
+        retry_after_seconds = 1800
+        number_of_retries = 0
 
         response = request()
 
-        while response.status_code == 403:
-
-            f = open("http.log", "a")
+        while response.status_code == 403 and number_of_retries <= 10:
+            number_of_retries += 1
+            f = open("http.log", "a", encoding="utf-8")
+            f.write(response.headers)
             f.write(json.dumps(response.json()))
-            f.write("\n")
+            f.write("\n\n")
             f.close()
 
             os.system('cls' if os.name == 'nt' else 'clear')
