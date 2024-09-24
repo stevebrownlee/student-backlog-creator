@@ -8,7 +8,7 @@ import datetime
 from rich import print
 from rich.progress import track
 from backlog_githubrequest import GithubRequest
-from backlog_project import ProjectBoard
+from backlog_graphql_project import ProjectBoard
 
 
 http_error_messages = {}
@@ -70,23 +70,23 @@ class Issues(object):
 
         os.system('cls' if os.name == 'nt' else 'clear')
 
-        for issue in track(issues, description="Migrating..."):
+        # for issue in track(issues, description="Migrating..."):
 
-            sleep(5)
+        #     sleep(5)
 
-            issue['labels'] = ['enhancement']
-            try:
-                res = self.grequest.post(url, issue)
-                result_issue = res.json()
-                os.system('cls' if os.name == 'nt' else 'clear')
-                print(f'Successfully created issue \"{result_issue["title"]}\"')
-                target_issues.append(result_issue)
-            except KeyError as err:
-                print(f'Error creating issue. {err}.')
-                print(result_issue)
+        #     issue['labels'] = ['enhancement']
+        #     try:
+        #         res = self.grequest.post(url, issue)
+        #         result_issue = res.json()
+        #         os.system('cls' if os.name == 'nt' else 'clear')
+        #         print(f'Successfully created issue \"{result_issue["title"]}\"')
+        #         target_issues.append(result_issue)
+        #     except KeyError as err:
+        #         print(f'Error creating issue. {err}.')
+        #         print(result_issue)
 
-        # project_manager = ProjectBoard(self.config)
-        # project_manager.create(target)
+        project_manager = ProjectBoard(self.config)
+        project_manager.create(target)
         # project_manager.create_columns()
         # project_manager.add_target_issues_to_backlog(target_issues)
 
@@ -100,6 +100,7 @@ class Issues(object):
 
         # Sort issues based on their original `id` field
         issues.sort(key=lambda x: x['number'])
+        issues.reverse() # Reverse the order to mirror the original order
 
         return issues
 
@@ -131,12 +132,35 @@ class Issues(object):
                 if active_issue < issue_count:
                     active_issue += 1
 
+            # G
+            if choice == 71:
+                active_issue = issue_count
+
+            # g
+            if choice == 103:
+                active_issue = 0
+
             # d
             if choice == 100:
                 if active_issue < issue_count:
                     a, b = active_issue, active_issue + 1
                     issues[b], issues[a] = issues[a], issues[b]
                     active_issue += 1
+
+            # D
+            if choice == 68:
+                # Move active_issue to the bottom
+                issues.append(issues.pop(active_issue))
+
+            # U
+            if choice == 85:
+                # Move active_issue to the top
+                issues.insert(0, issues.pop(active_issue))
+
+            # Q
+            if choice == 113:
+                # Quit
+                exit()
 
             # u
             if choice == 117:
@@ -151,7 +175,7 @@ class Issues(object):
                 else:
                     print(f'[dark_magenta](  )[/dark_magenta] [chartreuse3]{issue["title"]}[/chartreuse3]')
 
-            print('\n\nj=[light_goldenrod1]cursor up[/light_goldenrod1]   k=[light_goldenrod1]cursor down[/light_goldenrod1]   u=[light_goldenrod1]move up[/light_goldenrod1]   d=[light_goldenrod1]move down[/light_goldenrod1]   r=[light_goldenrod1]reverse[/light_goldenrod1]')
+            print('\n\nj/k=[light_goldenrod1]cursor down/up[/light_goldenrod1]  u/d=[light_goldenrod1]move issue up/down[/light_goldenrod1]  U/D=[light_goldenrod1]move issue to top/bottom[/light_goldenrod1]  r=[light_goldenrod1]reverse[/light_goldenrod1]  q=[light_goldenrod1]quit[/light_goldenrod1]')
             choice = ord(sys.stdin.read(1))
 
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
