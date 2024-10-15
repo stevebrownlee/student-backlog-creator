@@ -70,20 +70,18 @@ class Issues(object):
 
         os.system('cls' if os.name == 'nt' else 'clear')
 
-        # for issue in track(issues, description="Migrating..."):
+        for issue in track(issues, description="Migrating..."):
+            sleep(5)
 
-        #     sleep(5)
-
-        #     issue['labels'] = ['enhancement']
-        #     try:
-        #         res = self.grequest.post(url, issue)
-        #         result_issue = res.json()
-        #         os.system('cls' if os.name == 'nt' else 'clear')
-        #         print(f'Successfully created issue \"{result_issue["title"]}\"')
-        #         target_issues.append(result_issue)
-        #     except KeyError as err:
-        #         print(f'Error creating issue. {err}.')
-        #         print(result_issue)
+            try:
+                res = self.grequest.post(url, issue)
+                result_issue = res.json()
+                os.system('cls' if os.name == 'nt' else 'clear')
+                print(f'Successfully created issue \"{result_issue["title"]}\"')
+                target_issues.append(result_issue)
+            except KeyError as err:
+                print(f'Error creating issue. {err}.')
+                print(result_issue)
 
         project_manager = ProjectBoard(self.config)
         project_manager.create(target)
