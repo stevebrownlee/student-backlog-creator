@@ -87,8 +87,6 @@ class Issues(object):
 
         project_manager = ProjectBoard(self.config)
         project_manager.create(target)
-        # project_manager.create_columns()
-        # project_manager.add_target_issues_to_backlog(target_issues)
 
     def get_from_source(self):
         issues = []
@@ -175,7 +173,7 @@ class Issues(object):
                 else:
                     print(f'[dark_magenta](  )[/dark_magenta] [chartreuse3]{issue["title"]}[/chartreuse3]')
 
-            print('\n\nj/k=[light_goldenrod1]cursor down/up[/light_goldenrod1]  u/d=[light_goldenrod1]move issue up/down[/light_goldenrod1]  U/D=[light_goldenrod1]move issue to top/bottom[/light_goldenrod1]  r=[light_goldenrod1]reverse[/light_goldenrod1]  q=[light_goldenrod1]quit[/light_goldenrod1]')
+            print('\n\nj/k=[light_goldenrod1]cursor down/up[/light_goldenrod1]  u/d=[light_goldenrod1]issue up/down[/light_goldenrod1]  U/D=[light_goldenrod1]issue to top/bottom[/light_goldenrod1]  g/G=[light_goldenrod1]cursor to top/bottom[/light_goldenrod1]  r=[light_goldenrod1]reverse[/light_goldenrod1]  q=[light_goldenrod1]quit[/light_goldenrod1]')
             choice = ord(sys.stdin.read(1))
 
         termios.tcsetattr(fd, termios.TCSADRAIN, old)
